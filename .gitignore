@@ -1,0 +1,13 @@
+# downloaded weekly files (re-created by src/01_download_smard.py)
+data/cache/
+data/cache_test/
+# local database (re-created by src/02_load_sqlite.py)
+data/energy.db
+# Python
+__pycache__/
+.ipynb_checkpoints/
+venv/
+.venv/
+# Power BI export (re-created by src/02_load_sqlite.py)
+data/processed/
+data/raw/
