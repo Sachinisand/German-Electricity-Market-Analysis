@@ -5,6 +5,7 @@ tests/sample_week.json holds one real week of SMARD data (14-20 Sep 2026) for
 14 series. The test serves it instead of the network, then runs the download
 script, the SQLite loader and every query in sql/analysis.sql. The nuclear
 series is left out on purpose to check that it is filled with zeros.
+All files are written to a temporary folder, so your real data in data/ is not touched.
 
 Run:  python tests/test_pipeline.py
 """
@@ -13,6 +14,7 @@ import json
 import re
 import sqlite3
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,14 +36,20 @@ def fake_get_json(url, session, retries=3):
     return {"series": SAMPLE[m.group(1)][m.group(2)]}
 
 
+TMP = Path(tempfile.mkdtemp(prefix="smard_test_"))
+
 download = load("01_download_smard")
 download.get_json = fake_get_json
-download.CACHE = ROOT / "data" / "cache_test"
+download.CACHE = TMP / "cache"
+download.RAW = TMP / "raw"
 download.time.sleep = lambda s: None
 sys.argv = ["test", "--start", "2026-09-01"]
 download.main()
 
 loader = load("02_load_sqlite")
+loader.CSV = TMP / "raw" / "smard_hourly.csv"
+loader.DB = TMP / "energy.db"
+loader.PBI = TMP / "processed" / "hourly_powerbi.csv"
 loader.main()
 
 with sqlite3.connect(loader.DB) as con:
