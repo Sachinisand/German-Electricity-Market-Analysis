@@ -33,7 +33,7 @@ GREY = "#6b7280"
 SEASON_COLORS = {"Winter": BLUE, "Spring": GREEN, "Summer": ORANGE, "Autumn": "#9c5b2e"}
 
 plt.rcParams.update({
-    "font.size": 10, "svg.fonttype": "none",
+    "font.size": 10, "svg.fonttype": "none", "svg.hashsalt": "smard",
     "axes.spines.top": False, "axes.spines.right": False,
     "axes.titleweight": "bold", "axes.titlesize": 12, "axes.titlelocation": "left",
 })
@@ -65,7 +65,7 @@ def chart_price_vs_renewables(con):
     ax2.set_ylim(0, 75)
     ax2.set_ylabel("Renewable share of generation (%)", color=GREEN)
     ax2.spines["top"].set_visible(False)
-    ax.set_title("Renewable share up every year since 2021; prices peaked in the 2022 gas crisis")
+    ax.set_title("Renewables up since 2021; prices peaked in the 2022 gas crisis")
     source_note(fig, f"{df['year'].max()} is year to date")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     fig.savefig(OUT / "01_price_vs_renewables.svg")
