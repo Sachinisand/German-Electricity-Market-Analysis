@@ -54,19 +54,24 @@ def chart_price_vs_renewables(con):
                AVG(price_eur_mwh) AS price,
                100.0 * SUM(renewable_mwh) / SUM(generation_mwh) AS renewable_share
         FROM hourly GROUP BY year ORDER BY year""")
-    fig, ax = plt.subplots(figsize=(8, 4.2))
-    bars = ax.bar(df["year"].astype(str), df["price"], color=BLUE, width=0.6)
-    bars[-1].set_alpha(0.55)  # current year is not complete
-    ax.bar_label(bars, fmt="%.0f", padding=2, fontsize=9)
-    ax.set_ylabel("Average day-ahead price (EUR/MWh)")
-    ax2 = ax.twinx()
-    ax2.plot(df["year"].astype(str), df["renewable_share"], color=GREEN, marker="o", linewidth=2)
-    ax.set_ylim(0, 270)
-    ax2.set_ylim(0, 75)
-    ax2.set_ylabel("Renewable share of generation (%)", color=GREEN)
-    ax2.spines["top"].set_visible(False)
-    ax.set_title("Renewables up since 2021; prices peaked in the 2022 gas crisis")
-    source_note(fig, f"{df['year'].max()} is year to date")
+    years = df["year"].astype(str)
+    # Two panels with their own axis instead of one chart with two y-axes,
+    # which would suggest a link between the lines that the scales invent.
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+    for ax, col, color, fmt, title, ylabel in [
+        (ax1, "price", BLUE, "%.0f", "Average day-ahead price", "EUR/MWh"),
+        (ax2, "renewable_share", GREEN, "%.0f%%", "Renewable share of generation", "%"),
+    ]:
+        bars = ax.bar(years, df[col], color=color, width=0.6)
+        bars[-1].set_alpha(0.55)  # current year is not complete
+        ax.bar_label(bars, fmt=fmt, padding=2, fontsize=9)
+        ax.set_title(title, fontsize=11)
+        ax.set_ylabel(ylabel)
+        ax.tick_params(axis="x", labelsize=8)
+    ax2.set_ylim(0, 100)
+    fig.suptitle("Renewables up since 2021; prices peaked in the 2022 gas crisis",
+                 x=0.01, ha="left", fontweight="bold", fontsize=12)
+    source_note(fig, f"{df['year'].max()} is year to date (lighter bar)")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     fig.savefig(OUT / "01_price_vs_renewables.svg")
     plt.close(fig)
