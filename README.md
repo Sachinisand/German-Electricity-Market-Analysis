@@ -2,9 +2,13 @@
 
 **How does the growth of wind and solar change electricity prices in Germany, and what does that mean for companies that buy or sell power?**
 
-Hourly day-ahead prices, electricity consumption and generation by source from **SMARD** (Bundesnetzagentur), analysed with Python, SQL and Power BI.
+Hourly day-ahead prices, electricity consumption and generation by source from **SMARD** (Bundesnetzagentur), analysed with Python, SQL and an interactive HTML dashboard.
 
-> **Status:** pipeline, SQL analysis, charts and key findings are complete (data from 1 Jan 2019 to 9 Oct 2026). Next: Power BI dashboard and a simple price model.
+> **Status:** pipeline, SQL analysis, charts, key findings and the interactive dashboard are complete (data from 1 Jan 2019 to 9 Oct 2026). Next: a simple price model.
+
+### [Open the interactive dashboard](https://htmlpreview.github.io/?https://github.com/Sachinisand/German-Electricity-Market-Analysis/blob/main/outputs/dashboard.html)
+
+Filter by year and season to see prices, renewable share, the daily price curve, the merit-order effect, the generation mix, negative-price hours and the most expensive days. Every chart also has a table view. The dashboard is one HTML file built by `src/04_build_dashboard.py`, with no external libraries.
 
 ---
 
@@ -40,13 +44,17 @@ German-Electricity-Market-Analysis/
 ├── src/
 │   ├── 01_download_smard.py   ← downloads 15 hourly series from SMARD (cached, with retries)
 │   ├── 02_load_sqlite.py      ← adds date parts and shares, loads SQLite, writes a Power BI CSV
-│   └── 03_make_charts.py      ← builds the four charts below from the database
+│   ├── 03_make_charts.py      ← builds the four charts below from the database
+│   ├── 04_build_dashboard.py  ← aggregates the database and writes the HTML dashboard
+│   └── dashboard_template.html← layout, charts and filters of the dashboard (plain JS + SVG)
 ├── sql/
 │   └── analysis.sql           ← 7 analysis queries, one per business question
 ├── tests/
 │   ├── test_pipeline.py       ← offline end-to-end test of download, load and all queries
 │   └── sample_week.json       ← one real week of SMARD data used by the test
-├── outputs/charts/             ← charts used in this README (SVG)
+├── outputs/
+│   ├── charts/                ← charts used in this README (SVG)
+│   └── dashboard.html         ← interactive dashboard
 ├── data/                      ← created when you run the scripts (not in the repo)
 ├── requirements.txt
 └── README.md
@@ -63,6 +71,7 @@ python tests/test_pipeline.py                    # offline check, takes a few se
 python src/01_download_smard.py --start 2019-01-01   # about 10-20 minutes the first time
 python src/02_load_sqlite.py
 python src/03_make_charts.py
+python src/04_build_dashboard.py               # then open outputs/dashboard.html in a browser
 ```
 
 Then run the queries in `sql/analysis.sql` against `data/energy.db` (for example with DB Browser for SQLite), or load `data/processed/hourly_powerbi.csv` into Power BI.
